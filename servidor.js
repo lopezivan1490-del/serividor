@@ -12,7 +12,8 @@ app.use('/', rutasUsuarios);
 // --- Nuevo: inicio (sesion 10: frontend con Bootstrap) ---
 app.use(express.static('public'));
 // --- Nuevo: fin ---
-
+const rutasPaises = require('./routes/paises');
+app.use('/', rutasPaises);
 // --- Nuevo: inicio (sesion 9: middleware de errores global) ---
 app.use((err, req, res, next) => {
   console.error(err.stack);
