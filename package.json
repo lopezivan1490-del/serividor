@@ -1,18 +1,20 @@
 {
-  "name": "servidor",
+  "name": "demo-clase6",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --file=.env servidor.js"
+    "start": "node --env-file=.env servidor.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
-    "mysql2": "^3.24.5"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1"
   }
 }

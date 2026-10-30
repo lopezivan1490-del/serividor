@@ -1,13 +1,18 @@
-// --- Nuevo: inicio (sesion 11: conexion a MySQL) ---
-const mysql = require('mysql2/promise');
+// --- Nuevo: inicio (conexion a Supabase / PostgreSQL) ---
+// Los datos de conexion se leen del archivo .env (nunca en el codigo).
+// Se copian de Supabase: boton "Connect" > "Session pooler".
+const { Client } = require('pg');
 
 async function conectar() {
-  const conexion = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: process.env.DB_PASSWORD || 'TU_CONTRASEÑA_AQUI',
-    database: 'curso_web'
+  const conexion = new Client({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 5432,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'postgres',
+    ssl: { rejectUnauthorized: false }  // Supabase exige conexion cifrada
   });
+  await conexion.connect();
   return conexion;
 }
 // --- Nuevo: fin ---
@@ -21,8 +26,8 @@ async function obtenerUsuario(req, res) {
   let conexion;
   try {
     conexion = await conectar();
-    // El ? evita inyeccion SQL: mysql2 escapa el valor por nosotros
-    const [filas] = await conexion.query('SELECT * FROM usuarios WHERE id = ?', [req.params.id]);
+    // El $1 evita inyeccion SQL: pg envia el valor por separado de la consulta
+    const { rows: filas } = await conexion.query('SELECT * FROM usuarios WHERE id = $1', [req.params.id]);
     if (filas.length === 0) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
@@ -54,11 +59,12 @@ async function crearUsuario(req, res) {
     }
 
     conexion = await conectar();
-    const [resultado] = await conexion.query(
-      'INSERT INTO usuarios (nombre, edad) VALUES (?, ?)',
+    // RETURNING id devuelve el id generado (en MySQL era insertId)
+    const resultado = await conexion.query(
+      'INSERT INTO usuarios (nombre, edad) VALUES ($1, $2) RETURNING id',
       [nombre, edad]
     );
-    const nuevoUsuario = { id: resultado.insertId, nombre, edad };
+    const nuevoUsuario = { id: resultado.rows[0].id, nombre, edad };
     res.status(201).json({ mensaje: 'Usuario creado', datos: nuevoUsuario });
 
   } catch (error) {
@@ -75,7 +81,7 @@ async function listarUsuarios(req, res) {
   let conexion;
   try {
     conexion = await conectar();
-    const [filas] = await conexion.query('SELECT * FROM usuarios');
+    const { rows: filas } = await conexion.query('SELECT * FROM usuarios ORDER BY id');
     res.json(filas);
   } catch (error) {
     console.error(error);
@@ -103,7 +109,7 @@ async function actualizarUsuario(req, res) {
     }
 
     conexion = await conectar();
-    const [filas] = await conexion.query('SELECT * FROM usuarios WHERE id = ?', [req.params.id]);
+    const { rows: filas } = await conexion.query('SELECT * FROM usuarios WHERE id = $1', [req.params.id]);
     if (filas.length === 0) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
@@ -115,7 +121,7 @@ async function actualizarUsuario(req, res) {
       edad: edad ?? filas[0].edad
     };
     await conexion.query(
-      'UPDATE usuarios SET nombre = ?, edad = ? WHERE id = ?',
+      'UPDATE usuarios SET nombre = $1, edad = $2 WHERE id = $3',
       [usuario.nombre, usuario.edad, usuario.id]
     );
     res.json({ mensaje: 'Usuario actualizado', datos: usuario });
@@ -134,9 +140,9 @@ async function eliminarUsuario(req, res) {
   let conexion;
   try {
     conexion = await conectar();
-    const [resultado] = await conexion.query('DELETE FROM usuarios WHERE id = ?', [req.params.id]);
-    // affectedRows = 0 significa que no existia un usuario con ese id
-    if (resultado.affectedRows === 0) {
+    const resultado = await conexion.query('DELETE FROM usuarios WHERE id = $1', [req.params.id]);
+    // rowCount = 0 significa que no existia un usuario con ese id
+    if (resultado.rowCount === 0) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
     res.json({ mensaje: 'Usuario eliminado' });

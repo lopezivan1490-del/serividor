@@ -16,6 +16,28 @@
 
   <div class="container mt-4">
 
+    <!-- --- Nuevo: inicio (sesion 14: inicio de sesion) --- -->
+    <h2 class="mb-3">Iniciar sesión</h2>
+    <form id="formLogin" class="row g-3 align-items-end mb-2">
+      <div class="col-12 col-md-5">
+        <label class="form-label" for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="password">Contraseña</label>
+        <input type="password" class="form-control" id="password" name="password" minlength="8" required>
+      </div>
+      <div class="col-6 col-md-2">
+        <button type="submit" class="btn btn-success w-100">Entrar</button>
+      </div>
+      <div class="col-6 col-md-1">
+        <button type="button" id="btnRegistro" class="btn btn-outline-secondary w-100">Registrarse</button>
+      </div>
+    </form>
+    <div id="estadoSesion" class="mb-4 text-muted">No has iniciado sesión</div>
+    <button type="button" id="btnSalir" class="btn btn-outline-danger btn-sm mb-4 d-none">Cerrar sesión</button>
+    <!-- --- Nuevo: fin --- -->
+
     <h2 class="mb-3">Crear usuario</h2>
     <form id="formUsuario" class="row g-3 align-items-end mb-4">
       <div class="col-12 col-md-5">
@@ -24,7 +46,7 @@
       </div>
       <div class="col-12 col-md-4">
         <label class="form-label" for="edad">Edad</label>
-        <input type="number" class="form-control" id="edad" name="edad" required>
+        <input type="number" class="form-control" id="edad" name="edad" min="0" required>
       </div>
       <div class="col-12 col-md-3">
         <button type="submit" class="btn btn-primary w-100">Enviar</button>

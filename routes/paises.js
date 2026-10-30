@@ -5,7 +5,7 @@ const { obtenerPais, obtenerResumen } = require('../controllers/paisesController
 
 // GET /paises/:nombre -> datos de un pais desde REST Countries
 router.get('/paises/:nombre', obtenerPais);
-// GET /resumen -> total de usuarios (MySQL) + poblacion de un pais (REST Countries)
+// GET /resumen -> total de usuarios (supabase) + poblacion de un pais (REST Countries)
 router.get('/resumen', obtenerResumen);
 
 module.exports = router;

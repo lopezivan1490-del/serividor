@@ -63,7 +63,7 @@ async function obtenerResumen(req, res) {
   let conexion;
   try {
     conexion = await conectar();
-    const [usuarios] = await conexion.query('SELECT id FROM usuarios');
+        const { rows: usuarios } = await conexion.query('SELECT id FROM usuarios');
 
     const pais = await buscarPais(PAIS_RESUMEN);
     if (!pais) {
